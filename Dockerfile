@@ -26,7 +26,7 @@ RUN set -eux; \
         wget \
         zlib1g-dev; \
     rm -rf /var/lib/apt/lists/*; \
-    wget "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"; \
+    wget --progress=dot:giga "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"; \
     tar -zxf "nginx-${NGINX_VERSION}.tar.gz"; \
     git clone --recurse-submodules https://github.com/google/ngx_brotli.git; \
     cd "nginx-${NGINX_VERSION}"; \
