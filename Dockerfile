@@ -45,7 +45,7 @@ RUN sed -i '1iload_module modules/ngx_http_brotli_filter_module.so;\nload_module
 COPY <<'EOF_CONF' /etc/nginx/conf.d/brotli.conf
 brotli on;
 brotli_static on;
-brotli_comp_level 6;
+brotli_comp_level 4;
 brotli_types application/atom+xml application/javascript application/json application/vnd.api+json application/rss+xml
     application/vnd.ms-fontobject application/x-font-opentype application/x-font-truetype
     application/x-font-ttf application/x-javascript application/xhtml+xml application/xml
