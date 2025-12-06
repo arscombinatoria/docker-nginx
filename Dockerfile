@@ -3,7 +3,8 @@
 FROM nginx:1.29.3 AS nginx-base
 
 # Capture the upstream nginx version from the base image so the builder can match it exactly.
-RUN nginx -v 2>&1 | sed -E 's|^nginx version: nginx/||' > /tmp/nginx-version
+RUN nginx -v 2>&1 > /tmp/nginx-version \
+ && sed -E -i 's|^nginx version: nginx/||' /tmp/nginx-version
 
 FROM ubuntu:24.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
