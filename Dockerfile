@@ -50,7 +50,7 @@ RUN sed -i '1iload_module modules/ngx_http_brotli_filter_module.so;\nload_module
 COPY <<'EOF_CONF' /etc/nginx/conf.d/brotli.conf
 brotli on;
 brotli_static on;
-brotli_comp_level 6;
+brotli_comp_level 4;
 brotli_types text/plain text/css application/javascript application/json application/xml text/xml application/xml+rss text/javascript image/svg+xml application/font-woff2;
 EOF_CONF
 
