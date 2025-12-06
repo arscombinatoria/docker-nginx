@@ -21,10 +21,10 @@ jobs:
         uses: reviewdog/action-hadolint@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Use GitHub Checks so lint results always appear on the PR even when lines are untouched.
-          reporter: github-pr-check
+          # Post lint findings as PR review comments so they show up on the diff and in the timeline.
+          reporter: github-pr-review
           level: warning
           filter_mode: nofilter
-          # Do not fail the workflow on lint warnings; surface them via PR annotations instead.
+          # Keep the workflow green while surfacing warnings via review comments.
           fail_level: none
           reviewdog_flags: -tee
