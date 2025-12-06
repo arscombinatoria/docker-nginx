@@ -8,13 +8,10 @@ RUN nginx -v 2>&1 | sed -E 's|^nginx version: nginx/||' > /tmp/nginx-version
 FROM ubuntu:24.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
-WORKDIR /tmp/build
-
 # Copy the upstream nginx version detected from the base image.
 COPY --from=nginx-base /tmp/nginx-version /tmp/nginx-version
 
 RUN set -eux; \
-    NGINX_VERSION=$(cat /tmp/nginx-version); \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         build-essential \
@@ -25,7 +22,12 @@ RUN set -eux; \
         libssl-dev \
         wget \
         zlib1g-dev; \
-    rm -rf /var/lib/apt/lists/*; \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp/build
+
+RUN set -eux; \
+    NGINX_VERSION=$(cat /tmp/nginx-version); \
     wget --progress=dot:giga "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"; \
     tar -zxf "nginx-${NGINX_VERSION}.tar.gz"; \
     ln -s "nginx-${NGINX_VERSION}" nginx-src; \
