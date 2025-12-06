@@ -19,6 +19,7 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
+        cmake \
         curl \
         git \
         libpcre3-dev \
@@ -29,6 +30,10 @@ RUN set -eux; \
     curl -fSL "https://github.com/nginx/nginx/archive/refs/tags/release-${NGINX_VERSION}.tar.gz" \
         | tar zx --strip-components=1 -C nginx-src; \
     git clone --recursive https://github.com/google/ngx_brotli.git; \
+    cmake -S ngx_brotli/deps/brotli -B ngx_brotli/deps/brotli/out \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON; \
+    cmake --build ngx_brotli/deps/brotli/out --config Release; \
     cd nginx-src; \
     ./auto/configure --with-compat --add-dynamic-module=../ngx_brotli; \
     make modules
