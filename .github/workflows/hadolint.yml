@@ -25,5 +25,4 @@ jobs:
           level: warning
           filter_mode: nofilter
           fail_level: warning
-          hadolint_flags: --recursive .
           reviewdog_flags: -tee
