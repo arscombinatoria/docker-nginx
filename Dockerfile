@@ -28,8 +28,12 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/*; \
     wget --progress=dot:giga "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz"; \
     tar -zxf "nginx-${NGINX_VERSION}.tar.gz"; \
-    git clone --recurse-submodules https://github.com/google/ngx_brotli.git; \
-    cd "nginx-${NGINX_VERSION}"; \
+    ln -s "nginx-${NGINX_VERSION}" nginx-src; \
+    git clone --recurse-submodules https://github.com/google/ngx_brotli.git
+
+WORKDIR /tmp/build/nginx-src
+
+RUN set -eux; \
     ./configure --with-compat --add-dynamic-module=../ngx_brotli; \
     make modules
 
