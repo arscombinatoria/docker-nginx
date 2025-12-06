@@ -1,57 +1,26 @@
 # syntax=docker/dockerfile:1
 
-FROM nginx:1.27.0 AS nginx-base
+FROM ubuntu:24.04 AS builder
 
-# Capture the upstream nginx version from the base image so the builder can match it exactly.
-RUN nginx -v 2>&1 | sed -E 's|^nginx version: nginx/||' > /tmp/nginx-version
+RUN apt update \
+    && apt upgrade -y \
+    && apt install -y libpcre3 libpcre3-dev zlib1g zlib1g-dev openssl libssl-dev wget git gcc make libbrotli-dev
 
-FROM ubuntu:22.04 AS builder
-ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /app
+RUN wget https://nginx.org/download/nginx-1.29.3.tar.gz && tar -zxf nginx-1.29.3.tar.gz
+RUN git clone --recurse-submodules -j8 https://github.com/google/ngx_brotli
+RUN cd nginx-1.29.3 && ./configure --with-compat --add-dynamic-module=../ngx_brotli \
+    && make modules
 
-WORKDIR /tmp/build
-
-# Copy the upstream nginx version detected from the base image.
-COPY --from=nginx-base /tmp/nginx-version /tmp/nginx-version
-
-RUN set -eux; \
-    NGINX_VERSION=$(cat /tmp/nginx-version); \
-    apt-get update; \
-    apt-get install -y --no-install-recommends \
-        build-essential \
-        ca-certificates \
-        cmake \
-        curl \
-        git \
-        libpcre3-dev \
-        libssl-dev \
-        zlib1g-dev; \
-    rm -rf /var/lib/apt/lists/*; \
-    mkdir -p nginx-src; \
-    curl -fSL "https://github.com/nginx/nginx/archive/refs/tags/release-${NGINX_VERSION}.tar.gz" \
-        | tar zx --strip-components=1 -C nginx-src; \
-    git clone --recursive https://github.com/google/ngx_brotli.git; \
-    cmake -S ngx_brotli/deps/brotli -B ngx_brotli/deps/brotli/out \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_POSITION_INDEPENDENT_CODE=ON; \
-    cmake --build ngx_brotli/deps/brotli/out --config Release; \
-    cd nginx-src; \
-    ./auto/configure --with-compat --add-dynamic-module=../ngx_brotli; \
-    make modules
-
-FROM nginx-base
-
-# Copy compiled Brotli dynamic modules from the builder image.
-COPY --from=builder /tmp/build/nginx-src/objs/ngx_http_brotli_*.so /etc/nginx/modules/
-
-# Load the Brotli modules at startup.
-RUN sed -i '1iload_module modules/ngx_http_brotli_filter_module.so;\nload_module modules/ngx_http_brotli_static_module.so;\n' /etc/nginx/nginx.conf
-
-# Default Brotli configuration.
-COPY <<'EOF_CONF' /etc/nginx/conf.d/brotli.conf
-brotli on;
-brotli_static on;
-brotli_comp_level 6;
-brotli_types text/plain text/css application/javascript application/json application/xml text/xml application/xml+rss text/javascript image/svg+xml application/font-woff2;
-EOF_CONF
-
-# Keep the upstream entrypoint and default command from the nginx base image.
+FROM nginx:1.29.3
+COPY --from=builder /app/nginx-1.29.3/objs/ngx_http_brotli_static_module.so /etc/nginx/modules/
+COPY --from=builder /app/nginx-1.29.3/objs/ngx_http_brotli_filter_module.so /etc/nginx/modules/
+RUN echo "load_module modules/ngx_http_brotli_filter_module.so;\nload_module modules/ngx_http_brotli_static_module.so;\n$(cat /etc/nginx/nginx.conf)" > /etc/nginx/nginx.conf
+RUN echo 'brotli on;\n \
+brotli_comp_level 6;\n \
+brotli_static on;\n \
+brotli_types application/atom+xml application/javascript application/json application/vnd.api+json application/rss+xml\n \
+          application/vnd.ms-fontobject application/x-font-opentype application/x-font-truetype\n \
+          application/x-font-ttf application/x-javascript application/xhtml+xml application/xml\n \
+          font/eot font/opentype font/otf font/truetype image/svg+xml image/vnd.microsoft.icon\n \
+          image/x-icon image/x-win-bitmap text/css text/javascript text/plain text/xml;' > /etc/nginx/conf.d/brotli.conf
