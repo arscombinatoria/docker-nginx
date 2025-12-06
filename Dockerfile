@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM nginx:1.27.0 AS nginx-base
+FROM nginx:1.29.3 AS nginx-base
 
 # Capture the upstream nginx version from the base image so the builder can match it exactly.
 RUN nginx -v 2>&1 | sed -E 's|^nginx version: nginx/||' > /tmp/nginx-version
