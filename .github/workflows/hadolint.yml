@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Run hadolint
         uses: reviewdog/action-hadolint@v1
@@ -22,6 +24,6 @@ jobs:
           reporter: github-pr-review
           level: warning
           filter_mode: nofilter
-          path: .
-          recursive: true
-          fail_on_error: true
+          fail_level: warning
+          hadolint_flags: --recursive .
+          reviewdog_flags: -tee
