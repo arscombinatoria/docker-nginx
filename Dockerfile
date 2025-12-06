@@ -19,23 +19,29 @@ RUN set -eux; \
     apt-get install -y --no-install-recommends \
         build-essential \
         ca-certificates \
+        cmake \
         curl \
         git \
         libpcre3-dev \
         libssl-dev \
         zlib1g-dev; \
     rm -rf /var/lib/apt/lists/*; \
-    curl -fSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" \
-        | tar zx; \
+    mkdir -p nginx-src; \
+    curl -fSL "https://github.com/nginx/nginx/archive/refs/tags/release-${NGINX_VERSION}.tar.gz" \
+        | tar zx --strip-components=1 -C nginx-src; \
     git clone --recursive https://github.com/google/ngx_brotli.git; \
-    cd "nginx-${NGINX_VERSION}"; \
-    ./configure --with-compat --add-dynamic-module=../ngx_brotli; \
+    cmake -S ngx_brotli/deps/brotli -B ngx_brotli/deps/brotli/out \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON; \
+    cmake --build ngx_brotli/deps/brotli/out --config Release; \
+    cd nginx-src; \
+    ./auto/configure --with-compat --add-dynamic-module=../ngx_brotli; \
     make modules
 
 FROM nginx-base
 
 # Copy compiled Brotli dynamic modules from the builder image.
-COPY --from=builder /tmp/build/nginx-*/objs/ngx_http_brotli_*.so /etc/nginx/modules/
+COPY --from=builder /tmp/build/nginx-src/objs/ngx_http_brotli_*.so /etc/nginx/modules/
 
 # Load the Brotli modules at startup.
 RUN sed -i '1iload_module modules/ngx_http_brotli_filter_module.so;\nload_module modules/ngx_http_brotli_static_module.so;\n' /etc/nginx/nginx.conf

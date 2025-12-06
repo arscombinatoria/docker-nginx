@@ -1,0 +1,42 @@
+name: Test nginx build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build --tag nginx-brotli:ci .
+
+      - name: Start nginx container
+        run: |
+          docker run -d --name nginx-ci -p 8080:80 nginx-brotli:ci
+
+      - name: Wait for nginx to become ready
+        shell: bash
+        run: |
+          for i in {1..10}; do
+            if curl -fsS http://localhost:8080 >nginx-index.html; then
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "nginx did not become ready" >&2
+          exit 1
+
+      - name: Validate nginx configuration and Brotli modules
+        run: |
+          docker exec nginx-ci nginx -t
+          docker exec nginx-ci test -f /etc/nginx/modules/ngx_http_brotli_filter_module.so
+          docker exec nginx-ci test -f /etc/nginx/modules/ngx_http_brotli_static_module.so
+          test -s nginx-index.html
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f nginx-ci
