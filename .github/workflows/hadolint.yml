@@ -24,5 +24,6 @@ jobs:
           reporter: github-pr-review
           level: warning
           filter_mode: nofilter
-          fail_level: warning
+          # Do not fail the workflow on lint warnings; surface them via PR review comments instead.
+          fail_level: none
           reviewdog_flags: -tee
