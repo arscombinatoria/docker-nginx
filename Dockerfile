@@ -5,7 +5,7 @@ FROM nginx:1.27.0 AS nginx-base
 # Capture the upstream nginx version from the base image so the builder can match it exactly.
 RUN nginx -v 2>&1 | sed -E 's|^nginx version: nginx/||' > /tmp/nginx-version
 
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp/build
