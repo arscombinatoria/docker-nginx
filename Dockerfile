@@ -30,7 +30,7 @@ RUN set -eux; \
         | tar zx --strip-components=1 -C nginx-src; \
     git clone --recursive https://github.com/google/ngx_brotli.git; \
     cd nginx-src; \
-    ./configure --with-compat --add-dynamic-module=../ngx_brotli; \
+    ./auto/configure --with-compat --add-dynamic-module=../ngx_brotli; \
     make modules
 
 FROM nginx-base
