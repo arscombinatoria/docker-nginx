@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM nginx:1.29.3 AS nginx-base
+FROM nginx:1.29.4 AS nginx-base
 
 # Capture the upstream nginx version from the base image so the builder can match it exactly.
 RUN set -eux; \
