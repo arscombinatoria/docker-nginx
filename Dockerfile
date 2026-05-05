@@ -8,13 +8,11 @@ RUN set -eux; \
     NGINX_VERSION=${NGINX_VERSION#nginx version: nginx/}; \
     printf '%s\n' "$NGINX_VERSION" > /tmp/nginx-version
 
-FROM ubuntu:24.04 AS builder
+FROM nginx-base AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp/build
 
-# Copy the upstream nginx version detected from the base image.
-COPY --from=nginx-base /tmp/nginx-version /tmp/nginx-version
 
 # hadolint ignore=DL3008
 RUN set -eux; \
