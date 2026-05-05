@@ -8,7 +8,7 @@ RUN set -eux; \
     NGINX_VERSION=${NGINX_VERSION#nginx version: nginx/}; \
     printf '%s\n' "$NGINX_VERSION" > /tmp/nginx-version
 
-FROM ubuntu:24.04 AS builder
+FROM ubuntu:26.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp/build
