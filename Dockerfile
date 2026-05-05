@@ -23,7 +23,7 @@ RUN set -eux; \
         ca-certificates \
         git \
         libbrotli-dev \
-        libpcre3-dev \
+        libpcre2-dev \
         libssl-dev \
         wget \
         zlib1g-dev; \
