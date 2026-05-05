@@ -1,6 +1,6 @@
 # docker-nginx
 
-Custom NGINX image that enables the Brotli module by compiling dynamic modules with an Ubuntu-based build stage and layering them onto the official `nginx` image. Dependabot is configured to keep the base image up to date.
+Custom NGINX image that enables the Brotli module by compiling dynamic modules with a Debian-based build stage derived from the official `nginx` image and layering them onto the same upstream runtime image. Dependabot is configured to keep the base image up to date.
 
 ## Why this image?
 - **Version-safe Brotli**: The build stage reads the nginx version from the upstream image and compiles Brotli modules against the exact same release.
