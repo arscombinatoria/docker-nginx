@@ -16,6 +16,7 @@ WORKDIR /tmp/build
 # Copy the upstream nginx version detected from the base image.
 COPY --from=nginx-base /tmp/nginx-version /tmp/nginx-version
 
+# hadolint ignore=DL3008
 RUN set -eux; \
     NGINX_VERSION=$(cat /tmp/nginx-version); \
     apt-get update; \
