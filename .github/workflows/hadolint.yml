@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run hadolint
-        uses: reviewdog/action-hadolint@4d2cf3a12417a52584e2e251e5cc2ba97823cbdd # v1.0.0
+        uses: reviewdog/action-hadolint@921946a7ebaaf08ac72607bad67209f4e52b5407 # v1.50.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           # Post lint findings as PR review comments so they show up on the diff and in the timeline.
